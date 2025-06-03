@@ -38,7 +38,7 @@ require("abifunktsioonid.php");
                 <h1><i class='fas fa-paw' style='font-size:24px'></i> Kasside varjupaik - PHP andmebaasi projekt</h1>
                 <p>Tutvuge minu projektiga GitHubis – seal näete kogu lähtekoodi ja toimimist!</p>
                 <br>
-                <a href="loomadKasutaja.php" class="button">Vaata GitHubis<i class="fa fa-github" style="font-size:24px; position:relative; top:3px; left:8px;" ></i></a>
+                <a href="https://github.com/mariasmolina/PHP_Kasside_varjupaik" class="button">Vaata GitHubis<i class="fa fa-github" style="font-size:24px; position:relative; top:3px; left:8px;" ></i></a>
             </div>
         </div>
         <div class="index_div" >
