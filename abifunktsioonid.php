@@ -1,16 +1,13 @@
 <?php
 require ('conf.php');
-
 // Kontrollime, kas kasutaja on töötaja
 function isTootaja(): bool {
     return isset($_SESSION['tootaja']) && $_SESSION['tootaja'];
 }
-
 // Kontrollime, kas kasutaja on admin
 function isAdmin(): bool {
     return isset($_SESSION['admin']) && $_SESSION['admin'];
 }
-
 // Tabel 'toitmisajalugu'
 function kysiAndmed($sorttulp="kuupaev", $otsiloom = '', $otsikuupaev = ''){
     global $yhendus;
@@ -67,7 +64,6 @@ function kysiAndmed($sorttulp="kuupaev", $otsiloom = '', $otsikuupaev = ''){
     }
     return $hoidla;
 }
-
 // Loome rippmenüü valikute jaoks (nt looma valik või toidu valik)
 function looRippMenyy($sqllause, $valikunimi, $valitudid=""){
     global $yhendus;
@@ -83,7 +79,6 @@ function looRippMenyy($sqllause, $valikunimi, $valitudid=""){
     $tulemus.="</select>";
     return $tulemus;
 }
-
 // Tabel 'loom'
 function kysiLoomaAndmed($sorttulp="synniaeg", $otsitoug = '', $otsisugu = ''){
     global $yhendus;
@@ -136,7 +131,6 @@ function kysiLoomaAndmed($sorttulp="synniaeg", $otsitoug = '', $otsisugu = ''){
     }
     return $hoidla;
 }
-
 // Lisame uue looma andmebaasi
 function lisaLoom($looma_nimi, $kaal, $synniaeg, $sugu, $toug_id, $pilt){
     global $yhendus;
@@ -145,7 +139,6 @@ function lisaLoom($looma_nimi, $kaal, $synniaeg, $sugu, $toug_id, $pilt){
     $kask->bind_param("sdssis", $looma_nimi, $kaal, $synniaeg, $sugu, $toug_id, $pilt);
     $kask->execute();
 }
-
 // Lisame uue looma tõugu andmebaasi
 function lisaToug($toug_nimetus, $allergiasobralik){
     global $yhendus;
@@ -154,9 +147,6 @@ VALUES (?, ?)");
     $kask->bind_param("si", $toug_nimetus, $allergiasobralik);
     $kask->execute();
 }
-
-
-
 // Lisame uue toitmise ajalugu andmed andmebaasi
 function lisaToitmine($kuupaev, $kogus, $toit_id, $loom_id, $tootaja_id){
     global $yhendus;
@@ -169,7 +159,6 @@ VALUES (?, ?, ?, ?, ?)");
     $kask->bind_param("siiii", $kuupaev, $kogus, $toit_id, $loom_id, $tootaja_id);
     $kask->execute();
 }
-
 // Kustutame toitmise ajalugu andmed andmebaasist
 function kustutaLoomatoitmine($id){
     global $yhendus;
@@ -177,7 +166,6 @@ function kustutaLoomatoitmine($id){
     $kask->bind_param("i", $id);
     $kask->execute();
 }
-
 // Toitmisajalugu tabeli muutmine
 function muudaLoomatoitmine($id, $loom_id, $kuupaev, $toit_id, $kogus, $tootaja_id){
     global $yhendus;
@@ -188,7 +176,6 @@ function muudaLoomatoitmine($id, $loom_id, $kuupaev, $toit_id, $kogus, $tootaja_
     $kask->bind_param("isiiii", $loom_id, $kuupaev, $toit_id, $kogus, $tootaja_id, $id);
     $kask->execute();
 }
-
 // Looma tabeli muutmine
 function muudaLoom($id, $looma_nimi, $kaal, $synniaeg, $sugu, $toug_id){
     global $yhendus;
@@ -197,7 +184,6 @@ function muudaLoom($id, $looma_nimi, $kaal, $synniaeg, $sugu, $toug_id){
     $kask->bind_param("sdssii", $looma_nimi, $kaal, $synniaeg, $sugu, $toug_id, $id);
     $kask->execute();
 }
-
 // Tabelist 'loom' andmeid kusututamine
 function kustutaLoom($id){
     global $yhendus;
@@ -209,7 +195,6 @@ function kustutaLoom($id){
     $kask->bind_param("i", $id);
     $kask->execute();
 }
-
 // Tabel 'toit'
 function kysiToiduAndmed($sorttulp="tootja", $otsityyp = '', $otsitootja = ''){
     global $yhendus;
@@ -251,7 +236,6 @@ function kysiToiduAndmed($sorttulp="tootja", $otsityyp = '', $otsitootja = ''){
     }
     return $hoidla;
 }
-
 // Lisame uue toidu andmebaasi
 function lisaToit($toidu_nimetus, $tootja, $tyyp, $sailivus_paevad){
     global $yhendus;
@@ -262,7 +246,6 @@ VALUES (?, ?, ?, ?)");
     $kask->bind_param("sssi", $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad);
     $kask->execute();
 }
-
 // Kustutame andmed tabelist 'toit'
 function kustutaToit($id){
     global $yhendus;
@@ -270,7 +253,6 @@ function kustutaToit($id){
     $kask->bind_param("i", $id);
     $kask->execute();
 }
-
 // 'Toit' tabeli muutmine
 function muudaToit($id, $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad){
 global $yhendus;
@@ -279,8 +261,6 @@ $kask = $yhendus->prepare("UPDATE toit SET toidu_nimetus=?, tootja=?, tyyp=?, sa
 $kask->bind_param("sssii", $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad, $id);
 $kask->execute();
 }
-
-
 // Kontrollime, kas tõug on juba olemas
 function touguKontroll($toug_nimetus){
     global $yhendus;
@@ -292,7 +272,6 @@ function touguKontroll($toug_nimetus){
         return $rida;
     }
 }
-
 // Kontrollime, kas sama toit on juba olemas (nimi ja tüüp peavad kattuma)
 function toitOlemas($nimetus, $tyyp) {
     global $yhendus;
@@ -303,7 +282,6 @@ function toitOlemas($nimetus, $tyyp) {
     $rida=$kask->num_rows;
     return $rida;
 }
-
 // --- Registreerimis vorm - funktisoonid ---
 
 // Kontrollime, kas mõni väli jäi tühjaks
@@ -317,7 +295,6 @@ function emptyInputSignup($login, $pass){
     }
     return $result;
 }
-
 // Kontrollime, kas kasutajanimi sisaldab ainult tähti ja numbreid
 function invalidUid($login){
     global $result;
@@ -329,7 +306,6 @@ function invalidUid($login){
     }
     return $result;
 }
-
 // Kontrollime, kas paroolid kattuvad
 function pwdMatch($pass, $passKord){
     global $result;
@@ -341,7 +317,6 @@ function pwdMatch($pass, $passKord){
     }
     return $result;
 }
-
 // Kontrollime, kas kasutajanimi on juba olemas
 function uidExists($yhendus, $login){
     $sql = "SELECT * FROM ab_kasutajad WHERE login = ?";
@@ -366,7 +341,6 @@ function uidExists($yhendus, $login){
 
     mysqli_stmt_close($stmt);
 }
-
 // Lisame uue kasutaja andmebaasi
 function createUser($yhendus, $kasutaja_nimi, $login, $pass){
     $sql = "INSERT INTO ab_kasutajad (kasutaja_nimi, login, parool) VALUES (?, ?, ?)";
@@ -386,4 +360,3 @@ function createUser($yhendus, $kasutaja_nimi, $login, $pass){
     exit();
 }
 ?>
-

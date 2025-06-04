@@ -123,7 +123,7 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                     <label for="konserv">Konserv</label>
                 </fieldset>
                 <br>
-                <label for="sailivus_paevad">Säilivus päevad:</label>
+                <label for="sailivus_paevad">Säilivuspäevad:</label>
                 <input type="number" name="sailivus_paevad" id="sailivus_paevad" min="0" max="365" placeholder="päevad" required>
                 <br><br>
                 <input type="submit" name="toiduLisamine" value="Lisa toit" />
@@ -137,19 +137,22 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
         <?php endif; ?>
     </aside>
     <?php if (isAdmin() || isTootaja()): ?>
-    <main class="table">
-        <?php else: ?>
+        <main class="table">
+    <?php else: ?>
         <!-- külaline näeb ainult kitsamat versiooni -->
         <main class="table" style="max-width: 900px; margin: 0 auto;">
-            <?php endif; ?>
+    <?php endif; ?>
             <!-- vorm toidu otsimiseks -->
             <form action="toit.php" id="otsinguvorm">
                 <div>
                     <label for="otsityyp">Toidu tüüp:</label>
                     <select name="otsityyp" id="otsityyp">
                         <option value="">vali...</option>
-                        <option value="kuiv">kuiv</option>
-                        <option value="konserv">konserv</option>
+                        <!-- Kuvab valiku valituks, kui see vastab kasutaja sisestatud andmetele -->
+                        <option value="kuiv" <?php if (isset($_REQUEST['otsityyp']) && $_REQUEST['otsityyp']=='kuiv')
+                            echo 'selected'; ?>>kuiv</option>
+                        <option value="konserv" <?php if (isset($_REQUEST['otsityyp']) && $_REQUEST['otsityyp']=='konserv')
+                            echo 'selected'; ?>>konserv</option>
                     </select>
                 </div>
 
@@ -157,13 +160,21 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                     <label for="otsitootja">Tootja:</label>
                     <select name="otsitootja" id="otsitootja">
                         <option value="">vali...</option>
-                        <option value="Royal Canin">Royal Canin</option>
-                        <option value="Purina">Purina</option>
-                        <option value="Hill's">Hill's</option>
-                        <option value="Mars">Mars</option>
-                        <option value="Nestlé">Nestlé</option>
-                        <option value="Applaws">Applaws</option>
-                        <option value="Brit">Brit</option>
+                        <!-- Kuvab valiku valituks, kui see vastab kasutaja sisestatud andmetele -->
+                        <option value="Royal Canin" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Royal Canin')
+                            echo 'selected'; ?>>Royal Canin</option>
+                        <option value="Purina" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Purina')
+                            echo 'selected'; ?>>Purina</option>
+                        <option value="Hill's" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']== "Hill's")
+                            echo 'selected'; ?>>Hill's</option>
+                        <option value="Mars" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Mars')
+                            echo 'selected'; ?>>Mars</option>
+                        <option value="Nestlé" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Nestlé')
+                            echo 'selected'; ?>>Nestlé</option>
+                        <option value="Applaws" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Applaws')
+                            echo 'selected'; ?>>Applaws</option>
+                        <option value="Brit" <?php if (isset($_REQUEST['otsitootja']) && $_REQUEST['otsitootja']=='Brit')
+                            echo 'selected'; ?>>Brit</option>
                     </select>
                 </div>
 
@@ -180,7 +191,7 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                         <th><a href="toit.php?sort=toidu_nimetus">Toidu nimetus</a></th>
                         <th><a href="toit.php?sort=tootja">Tootja</a></th>
                         <th><a href="toit.php?sort=tyyp">Tüüp</a></th>
-                        <th><a href="toit.php?sort=sailivus_paevad">Säilivus päevad</a></th>
+                        <th><a href="toit.php?sort=sailivus_paevad">Säilivuspäevad</a></th>
                         <?php if (isAdmin()): ?>
                             <th>Haldus</th>
                         <?php endif; ?>

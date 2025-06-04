@@ -304,6 +304,7 @@ main {
     padding: 20px 24px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    z-index: 1;
 }
 
 /* Vormid */
@@ -427,7 +428,7 @@ a:hover {
 
 .otsingu-nupud {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: flex-end;
     min-width: 160px;
     margin-bottom: 1.3%;
@@ -474,6 +475,7 @@ footer p {
     padding: 0;
     display: flex;
     justify-content: flex-start;
+    z-index: 0;
 }
 
 .cat_img_toit img {

@@ -205,7 +205,12 @@ if (isset($_SESSION['kasutaja'])) {
                             $kask->bind_result($id, $sisu);
                             $kask->execute();
                             while ($kask->fetch()) {
-                                echo "<option value='$id'>$sisu</option>";
+                                // Kuvab valiku valituks, kui see vastab kasutaja sisestatud andmetele
+                                if ($_REQUEST['otsitoug']==$id) {
+                                    echo "<option value='$id' selected>$sisu</option>";
+                                } else {
+                                    echo "<option value='$id'>$sisu</option>";
+                                }
                             }
                             ?>
                         </select>
@@ -215,8 +220,11 @@ if (isset($_SESSION['kasutaja'])) {
                         <label for="otsisugu">Sugu:</label>
                         <select name="otsisugu" id="otsisugu">
                             <option value="">vali...</option>
-                            <option value="Isane">Isane</option>
-                            <option value="Emane">Emane</option>
+                            <!-- Kuvab valiku valituks, kui see vastab kasutaja sisestatud andmetele -->
+                            <option value="Isane" <?php if (isset($_REQUEST['otsisugu']) && $_REQUEST['otsisugu']=='Isane')
+                                echo 'selected'; ?>>Isane</option>
+                            <option value="Emane" <?php if (isset($_REQUEST['otsisugu']) && $_REQUEST['otsisugu']=='Emane')
+                                echo 'selected'; ?>>Emane</option>
                         </select>
                     </div>
 
