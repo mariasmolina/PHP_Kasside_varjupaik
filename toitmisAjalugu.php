@@ -10,10 +10,12 @@ if (isset($_SESSION['kasutaja']) && $_SESSION['kasutaja'] === 'admin') {
 }
 require("abifunktsioonid.php");
 
+// vaikimisi sorteerime kuupäeva järgi
 $sorttulp="kuupaev";
 $otsiloom = "";
 $otsikuupaev = "";
 
+// kui vajutati nuppu "Lisa toitmine" ja kõik väljad on täidetud
 if(isSet($_REQUEST["toitmiselisamine"]) &&
     !empty($_REQUEST["loom_id"]) &&
     !empty(trim($_REQUEST["kuupaev"])) &&
@@ -21,6 +23,14 @@ if(isSet($_REQUEST["toitmiselisamine"]) &&
     !empty(trim($_REQUEST["kogus"])) &&
     isset($_SESSION["kasutaja_id"])
 ) {
+    // Kontroll: kui sisestatud kuupaev on tulevikus
+    $kuupaev=$_REQUEST["kuupaev"];
+    $praegune=date("Y-m-d\TH:i");
+    if ($kuupaev>$praegune) {
+        header("Location: toitmisAjalugu.php?teade=vale_kuupaev");
+        exit();
+    }
+    // lisame uue toitmise andmebaasi
     lisaToitmine($_REQUEST["kuupaev"], $_REQUEST["kogus"], $_REQUEST["toit_id"], $_REQUEST["loom_id"], $_SESSION["kasutaja_id"]);
     header("Location: toitmisAjalugu.php?teade=lisatud");
     exit();
@@ -39,14 +49,24 @@ if (isset($_REQUEST["otsiloom"])) {
 if (isset($_REQUEST["otsikuupaev"])) {
     $otsikuupaev=$_REQUEST["otsikuupaev"];
 }
+// kustutamine
 if (isset($_REQUEST["kustutusid"])) {
     kustutaLoomatoitmine($_REQUEST["kustutusid"]);
     header("Location: toitmisAjalugu.php?teade=kustutatud");
 }
+// muutmine
 if (isset($_REQUEST["muutmine"])) {
+    // Kontrollime, et muudetud kuupäev ei oleks tulevikus
+    $kuupaev=$_REQUEST["kuupaev"];
+    $praegune=date("Y-m-d\TH:i");
+    if ($kuupaev>$praegune) {
+        header("Location: toitmisAjalugu.php?teade=vale_kuupaev");
+        exit();
+    }
     muudaLoomatoitmine($_REQUEST["muudetudid"], $_REQUEST["loom_id"], $_REQUEST["kuupaev"], $_REQUEST["toit_id"], $_REQUEST["kogus"], $_REQUEST["tootaja_id"]);
     header("Location: toitmisAjalugu.php?teade=muudetud");
 }
+// küsime kõik toitmise kirjed andmebaasist, vajadusel otsinguga
 $toitmisajalugu=kysiAndmed($sorttulp, $otsiloom, $otsikuupaev);
 ?>
 <!DOCTYPE html>
@@ -93,7 +113,7 @@ if (isset($_SESSION['kasutaja'])) {
                     ?>
                     <br>
                     <label for="kuupaev">Kuupäev/kellaaeg:</label>
-                    <input type="datetime-local" name="kuupaev" id="kuupaev">
+                    <input type="datetime-local" name="kuupaev" id="kuupaev" required> <!-- "required" muudab selle välja kohustuslikuks -->
                     <br>
                     <label for="">Toit:</label>
                     <?php
@@ -102,7 +122,7 @@ if (isset($_SESSION['kasutaja'])) {
                     ?>
                     <br>
                     <label for="">Kogus:</label>
-                    <input type="number" name="kogus" id="kogus" min="1" max="200" placeholder="grammid">
+                    <input type="number" name="kogus" id="kogus" min="1" max="200" placeholder="grammid" required>
                     <br><br>
                     <input type="submit" name="toitmiselisamine" value="Lisa toitmine" />
                     <br><br>
@@ -114,10 +134,18 @@ if (isset($_SESSION['kasutaja'])) {
             <form action="toitmisAjalugu.php" id="otsinguvorm">
                 <div>
                     <label for="otsiloom">Looma nimi:</label>
-                    <?php
-                    echo looRippMenyy("SELECT id, looma_nimi FROM loom",
-                        "otsiloom");
-                    ?>
+                    <select name="otsiloom" id="otsiloom">
+                        <option value="">vali...</option>
+                        <?php
+                        global $yhendus;
+                        $kask = $yhendus->prepare("SELECT id, looma_nimi FROM loom");
+                        $kask->bind_result($id, $sisu);
+                        $kask->execute();
+                        while ($kask->fetch()) {
+                            echo "<option value='$id'>$sisu</option>";
+                        }
+                        ?>
+                    </select>
                 </div>
 
                 <div>
@@ -132,6 +160,7 @@ if (isset($_SESSION['kasutaja'])) {
                     </div>
                 </div>
                 <br>
+                <!-- Tabel toitmise andmetega -->
                 <table>
                     <tr>
                         <th><a href="toitmisAjalugu.php?sort=looma_nimi">Loom</a></th>
@@ -143,8 +172,10 @@ if (isset($_SESSION['kasutaja'])) {
                             <th>Haldus</th>
                         <?php endif; ?>
                     </tr>
+                    <!-- Andmete kuvamine tabelina -->
                     <?php foreach($toitmisajalugu as $loom): ?>
                         <?php if(isSet($_REQUEST["muutmisid"]) && intval($_REQUEST["muutmisid"])==$loom->id): ?>
+                            <!-- Kui kasutaja soovib kirjet muuta -->
                             <tr>
                                 <td>
                                     <?php
@@ -166,6 +197,7 @@ if (isset($_SESSION['kasutaja'])) {
                                 <td>
                                     <input type="submit" name="muutmine" class="muuda_nupp" value="Muuda" />
                                     <input type="submit" name="katkestus" class="kustuta_nupp" value="Katkesta" />
+                                    <!-- Peidame vajalikud väärtused -->
                                     <input type="hidden" name="muudetudid" value="<?=$loom->id ?>" />
                                     <input type="hidden" name="sort" value="<?=htmlspecialchars($sorttulp) ?>">
                                     <input type="hidden" name="otsiloom" value="<?=htmlspecialchars($otsiloom) ?>">
@@ -181,18 +213,20 @@ if (isset($_SESSION['kasutaja'])) {
                                 <td><?=$loom->kasutaja_nimi ?></td>
                                 <?php if (isAdmin()): ?>
                                     <td>
+                                        <!-- Admin saab kustutada ja muuta -->
                                         <a href="toitmisAjalugu.php?kustutusid=<?= $loom->id ?>" class="kustuta_nupp"
                                            onclick="return confirm('Kas ikka soovid kustutada?')">Kustuta</a>
                                         <a href="toitmisAjalugu.php?muutmisid=<?= $loom->id ?>" class="muuda_nupp">Muuda</a>
                                     </td>
                                 <?php elseif (isTootaja() && $_SESSION['kasutaja_id'] == $loom->tootaja_id): ?>
+                                    <!-- Töötaja saab muuta/kustutada ainult oma kirjeid -->
                                     <td>
                                         <a href="toitmisAjalugu.php?kustutusid=<?= $loom->id ?>" class="kustuta_nupp"
                                            onclick="return confirm('Kas ikka soovid kustutada?')">Kustuta</a>
                                         <a href="toitmisAjalugu.php?muutmisid=<?= $loom->id ?>" class="muuda_nupp">Muuda</a>
                                     </td>
                                 <?php else: ?>
-                                    <td></td>
+                                    <td></td> <!-- Kui pole õigusi, siis tühi lahter -->
                                 <?php endif; ?>
                             </tr>
                         <?php endif; ?>
@@ -201,11 +235,13 @@ if (isset($_SESSION['kasutaja'])) {
             </form>
         </main>
     </div>
+    <!-- Lisame lehe lõpu jaluse -->
     <?php include 'footer.php'; ?>
 <?php
 }
 ?>
 <?php if (isset($_GET["teade"])): ?>
+    <!-- Kui toiming tehtud, näitame teadet -->
     <script>
         window.onload = function () {
             <?php if ($_GET["teade"] === "muudetud"): ?>
@@ -214,6 +250,8 @@ if (isset($_SESSION['kasutaja'])) {
             alert("Uus kirje lisatud!");
             <?php elseif ($_GET["teade"] === "kustutatud"): ?>
             alert("Kirje on kustutatud!");
+            <?php elseif ($_GET["teade"] === "vale_kuupaev"): ?>
+            alert("Viga! Kuupäev ei tohi olla tulevikus!");
             <?php endif; ?>
         };
     </script>

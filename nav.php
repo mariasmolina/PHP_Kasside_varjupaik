@@ -1,4 +1,5 @@
 <?php
+// Saame teada, mis leht on praegu aktiivne (näiteks index.php)
 $aktiivne_leht=basename($_SERVER['PHP_SELF']);
 ?>
 <nav class="nav-peek">
@@ -14,29 +15,35 @@ $aktiivne_leht=basename($_SERVER['PHP_SELF']);
                 Avaleht</a>
 
             <?php if (isAdmin()): ?>
+                <!-- Adminile eraldi link haldusele ja kasutajavaatele -->
                 <a href="loomadAdmin.php" <?php if ($aktiivne_leht=='loomadAdmin.php')
                     echo 'class="active"'; ?>>Loomad - haldus</a>
                 <a href="loomadKasutaja.php" <?php if ($aktiivne_leht=='loomadKasutaja.php')
                     echo 'class="active"'; ?>>Loomad</a>
 
             <?php elseif (isTootaja()): ?>
+                <!-- Töötaja näeb ainult üht lehte loomade kohta -->
                 <a href="loomadAdmin.php" <?php if ($aktiivne_leht=='loomadAdmin.php')
                     echo 'class="active"'; ?>>Loomad</a>
             <?php else: ?>
+                <!-- Tavakasutaja näeb ainult kasutajavaadet -->
                 <a href="loomadKasutaja.php" <?php if ($aktiivne_leht=='loomadKasutaja.php')
                     echo 'class="active"'; ?>>Loomad</a>
             <?php endif; ?>
-
+            <!-- Toidu leht on nähtav kõigile rollidele -->
             <a href="toit.php" <?php if ($aktiivne_leht=='toit.php')
                 echo 'class="active"'; ?>>Toit</a>
 
             <?php if (isAdmin()): ?>
+                <!-- Adminil on ligipääs toitmise ajaloole -->
                 <a href="toitmisAjalugu.php" <?php if ($aktiivne_leht=='toitmisAjalugu.php')
                     echo 'class="active"'; ?>>Toitmise ajalugu</a>
             <?php elseif (isTootaja()): ?>
+                <!-- Töötaja saab samuti vaadata toitmise ajalugu -->
                 <a href="toitmisAjalugu.php" <?php if ($aktiivne_leht=='toitmisAjalugu.php')
                     echo 'class="active"'; ?>>Toitmise ajalugu</a>
             <?php else: ?>
+                <!-- Tavakasutaja ja külaline näevad kontaktilehte -->
                 <a href="kontaktid.php" <?php if ($aktiivne_leht=='kontaktid.php')
                     echo 'class="active"'; ?>>Kontaktid</a>
             <?php endif; ?>
@@ -56,12 +63,13 @@ $aktiivne_leht=basename($_SERVER['PHP_SELF']);
                 }
                 ?>!
             </span>
-
+            <!-- Kui kasutaja on sisse logitud, näitame logout vormi -->
             <?php if (isset($_SESSION["kasutaja"])): ?>
                 <form action="logout.php" method="post" class="logout_form">
                     <input type="submit" name="logout" value="Logi välja" class="login_logout_button">
                 </form>
             <?php else: ?>
+                <!-- Kui ei ole logitud, pakume login nupu -->
                 <a href="login.php" class="login_logout_button">Logi sisse</a>
             <?php endif; ?>
         </div>

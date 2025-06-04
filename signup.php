@@ -12,23 +12,27 @@ if (isset($_POST["submit"])){
     $pass = htmlspecialchars(trim($_POST['pass']));
     $passKord = htmlspecialchars(trim($_POST['pass_kord']));
 
+    // Kontroll: kas mõni väli on tühi
     if (emptyInputSignup($login, $pass) !== false){
         header('location: signup.php?error=emptyinput');
         exit();
     }
+    // Kontroll: kas kasutajanimi sisaldab lubamatuid sümboleid
     if (invalidUid($login) !== false){
         header('location: signup.php?error=invaliuid');
         exit();
     }
+    // Kontroll: kas paroolid ei ühti
     if (pwdMatch($pass, $passKord) !== false){
         header('location: signup.php?error=passwordsdontmatch');
         exit();
     }
+    // Kontroll: kas kasutajanimi on juba andmebaasis olemas
     if (uidExists($yhendus, $login) !== false){
         header('location: signup.php?error=usernametaken');
         exit();
     }
-
+    // Kui kõik OK, siis loome kasutaja
     createUser($yhendus, $kasutaja_nimi, $login, $pass);
 }
 ?>
@@ -43,16 +47,18 @@ if (isset($_POST["submit"])){
 <body>
 <div class="login_leht">
     <div class="signup_form">
+        <!-- Registreerimisvorm -->
         <form action="" method="post">
             <h1>Loo uus konto</h1>
             <p>Registreerimine annab sulle ligipääsu meie kasside maailmale</p>
             <table>
-                <tr<label for="signup_login" class="signup_label">
+                <tr<label for="signup_name" class="signup_label">
+                    <!-- SVG ikoonid -->
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#24594e" style="vertical-align: middle; margin-right: 5px;  margin-bottom: 3px;">
                         <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
                     </svg>
                     Ees- ja Perekonnanimi:</label></tr>
-                <tr><input type="text" id="signup_login" name="kasutaja_nimi" placeholder="Kasutajanimi"></tr>
+                <tr><input type="text" id="signup_name" name="kasutaja_nimi" placeholder="Kasutajanimi"></tr>
                 <tr<label for="signup_login" class="signup_label">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="#24594e" style="vertical-align: middle; margin-right: 5px;  margin-bottom: 3px;">
                         <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />

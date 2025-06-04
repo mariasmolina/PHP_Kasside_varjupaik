@@ -9,10 +9,13 @@ if (isset($_SESSION['kasutaja']) && $_SESSION['kasutaja'] === 'admin') {
     $_SESSION['admin'] = false;
 }
 require("abifunktsioonid.php");
+
+// Vaikimisi sortimise tulp
 $sorttulp="tootja";
 $otsityyp = "";
 $otsitootja = "";
 
+// Kui vormist saadeti uue toidu lisamise andmed ja väljad ei ole tühjad
 if(isSet($_REQUEST["toiduLisamine"]) &&
     !empty(trim($_REQUEST["toidu_nimetus"])) &&
     !empty(trim($_REQUEST["tootja"])) &&
@@ -21,10 +24,12 @@ if(isSet($_REQUEST["toiduLisamine"]) &&
 ) {
     $nimetus = trim($_REQUEST["toidu_nimetus"]);
     $tyyp = trim($_REQUEST["tyyp"]);
+    // Kontrollime, kas toit on juba olemas
     if (toitOlemas($nimetus, $tyyp)) {
         header("Location: toit.php?teade=toit_olemas");
         exit();
     } else {
+        // Kui ei ole, lisame uue toidu
         lisaToit($_REQUEST["toidu_nimetus"], $_REQUEST["tootja"], $_REQUEST["tyyp"], $_REQUEST["sailivus_paevad"]);
         header("Location: toit.php?teade=lisatud");
         exit();
@@ -37,14 +42,16 @@ if(isSet($_REQUEST["sort"])){$sorttulp=$_REQUEST["sort"];
 if (isset($_REQUEST["otsityyp"])) {
     $otsityyp=$_REQUEST["otsityyp"];
 }
-// kuupäeva otsing
+// otsing
 if (isset($_REQUEST["otsitootja"])) {
     $otsitootja=$_REQUEST["otsitootja"];
 }
+// kustutamine
 if (isset($_REQUEST["kustutusid"])) {
     kustutaToit($_REQUEST["kustutusid"]);
     header("Location: toit.php?teade=kustutatud");
 }
+// muutmine
 if (isset($_REQUEST["muutmine"])) {
     muudaToit($_REQUEST["muudetudid"], $_REQUEST["toidu_nimetus"], $_REQUEST["tootja"], $_REQUEST["tyyp"], $_REQUEST["sailivus_paevad"]);
     header("Location: toit.php?teade=muudetud");
@@ -60,6 +67,7 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script>
+        // Funktsioon tühjendab otsingu väljad
         function tyhjendaOtsing() {
             document.getElementById('otsityyp').value = '';
             document.getElementById('otsitootja').value = '';
@@ -77,16 +85,24 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
         <span class="tootaja-badge">Töötaja</span>
     <?php endif; ?>
 </header>
+<!-- Lisame navigeerimismenüü -->
 <?php include 'nav.php'; ?>
 <div class="tabeli_container">
-    <aside class="<?= isset($_SESSION['kasutaja']) ? 'aside_login' : 'aside_kylaline' ?>">
+    <?php
+    // Kui kasutaja on sisseloginud, siis näitame spetsiaalse klassiga sisu
+    $className='aside_kylaline';
+    if (isset($_SESSION['kasutaja'])) {
+        $className='aside_login';
+    }
+    ?>
+    <aside class="<?= $className ?>">
         <?php if (isAdmin() || isTootaja()) : ?>
             <!-- lisamine -->
             <form action="toit.php" id="lisamisvorm">
                 <h2>Toidu lisamine</h2>
                 <br>
                 <label for="toidu_nimetus">Toidu nimetus:</label>
-                <input type="text" name="toidu_nimetus" id="toidu_nimetus">
+                <input type="text" name="toidu_nimetus" id="toidu_nimetus" required> <!-- "required" muudab selle välja kohustuslikuks -->
                 <br>
                 <label for="tootja">Tootja:</label>
                 <select name="tootja" id="tootja">
@@ -101,14 +117,14 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                 <br>
                 <fieldset class="toidutyyp-valik">
                     <legend><strong>Tüüp:</strong></legend>
-                    <input type="radio" name="tyyp" id="kuiv" value="kuiv">
+                    <input type="radio" name="tyyp" id="kuiv" value="kuiv" required>
                     <label for="kuiv">Kuiv</label>
-                    <input type="radio" id="konserv" name="tyyp" value="konserv">
+                    <input type="radio" id="konserv" name="tyyp" value="konserv" required>
                     <label for="konserv">Konserv</label>
                 </fieldset>
                 <br>
                 <label for="sailivus_paevad">Säilivus päevad:</label>
-                <input type="number" name="sailivus_paevad" id="sailivus_paevad" min="0" max="365" placeholder="päevad">
+                <input type="number" name="sailivus_paevad" id="sailivus_paevad" min="0" max="365" placeholder="päevad" required>
                 <br><br>
                 <input type="submit" name="toiduLisamine" value="Lisa toit" />
                 <br><br>
@@ -123,9 +139,10 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
     <?php if (isAdmin() || isTootaja()): ?>
     <main class="table">
         <?php else: ?>
+        <!-- külaline näeb ainult kitsamat versiooni -->
         <main class="table" style="max-width: 900px; margin: 0 auto;">
             <?php endif; ?>
-            <!-- otsing -->
+            <!-- vorm toidu otsimiseks -->
             <form action="toit.php" id="otsinguvorm">
                 <div>
                     <label for="otsityyp">Toidu tüüp:</label>
@@ -157,6 +174,7 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                     </div>
                 </div>
                 <br>
+                <!-- tabel, kus kuvatakse toidud -->
                 <table>
                     <tr>
                         <th><a href="toit.php?sort=toidu_nimetus">Toidu nimetus</a></th>
@@ -212,6 +230,7 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
                                 <td><?=$toit->sailivus_paevad ?></td>
                                 <?php if (isAdmin()): ?>
                                     <td>
+                                        <!-- admin saab muuta ja kustutada -->
                                         <a href="toit.php?kustutusid=<?=$toit->id ?>" class="kustuta_nupp"
                                            onclick="return confirm('Kas ikka soovid kustutada?')">Kustuta</a>
                                         <a href="toit.php?muutmisid=<?=$toit->id ?>" class="muuda_nupp">Muuda</a>
@@ -224,8 +243,10 @@ $toiduloend=kysiToiduAndmed($sorttulp, $otsityyp, $otsitootja);
             </form>
         </main>
 </div>
+<!-- Lisame lehe lõpu jaluse -->
 <?php include 'footer.php'; ?>
 <?php if (isset($_GET["teade"])): ?>
+    <!-- Teadete kuvamine -->
     <script>
         window.onload = function () {
             <?php if ($_GET["teade"] === "muudetud"): ?>

@@ -1,4 +1,5 @@
 <?php
+// ühendame andmebaasiga ja alustame sessiooni
 require("conf.php");
 session_start();
 require("abifunktsioonid.php");
@@ -10,35 +11,39 @@ require("abifunktsioonid.php");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kasside Varjupaik</title>
+    <!-- Lisan ilusad fondid ja ikoonid -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="icon" href="img/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
 <header>
     <img src="img/logo.png" alt="Kass" class="logo-img">
     <h1>KassiKODU</h1>
+    <!-- Kui kasutaja on admin, siis näitame "Admin" märki -->
     <?php if (isAdmin()): ?>
         <span class="admin-badge">Admin</span>
     <?php endif; ?>
+    <!-- Kui kasutaja on töötaja, siis näitame "Töötaja" märki -->
     <?php if (isTootaja()): ?>
         <span class="tootaja-badge">Töötaja</span>
     <?php endif; ?>
 </header>
+<!-- Lisame navigeerimismenüü -->
 <?php include 'nav.php'; ?>
 <?php if (isAdmin()): ?>
+    <!-- Adminile näitame tervitusplokki ja selgitame, mis õigused on kasutajatel -->
     <div class="container">
         <div class="welcome_block" >
             <img src="img/cat7.png" alt="Kass" class="welcome_img">
             <div style="height: 250px;">
+                <!-- Ilusad ikoonid https://www.w3schools.com/icons/fontawesome_icons_intro.asp -->
                 <h1><i class='fas fa-paw' style='font-size:24px'></i> Kasside varjupaik - PHP andmebaasi projekt</h1>
                 <p>Tutvuge minu projektiga GitHubis – seal näete kogu lähtekoodi ja toimimist!</p>
                 <br>
-                <a href="https://github.com/mariasmolina/PHP_Kasside_varjupaik" class="button">Vaata GitHubis<i class="fa fa-github" style="font-size:24px; position:relative; top:3px; left:8px;" ></i></a>
+                <a href="https://github.com/mariasmolina/PHP_Kasside_varjupaik" target="_blank" class="button">Vaata GitHubis<i class="fa fa-github" style="font-size:24px; position:relative; top:3px; left:8px;" ></i></a>
             </div>
         </div>
         <div class="index_div" >
@@ -81,7 +86,7 @@ require("abifunktsioonid.php");
                 <ul style="text-align: left;">
                     <li><strong>Admin</strong><br>
                         Kasutajanimi: <code>admin</code><br>
-                        Parool: <code>admin</code></li><br>
+                        Parool: <code>adminTARgv24</code></li><br>
 
                     <li><strong>Töötajad</strong><br>
                         Kasutajanimi: <code>tootaja1</code> / <code>tootaja2</code><br>
@@ -95,6 +100,7 @@ require("abifunktsioonid.php");
         </div>
     </div>
 <?php else: ?>
+    <!-- Kui kasutaja EI OLE admin, siis näitame lihtsalt avalikku infot -->
     <div class="container">
         <div class="welcome_block">
             <img src="img/cat7.png" alt="Kass" class="welcome_img">
@@ -141,6 +147,7 @@ require("abifunktsioonid.php");
             </div>
         </div>
         <br>
+        <!-- Näitame 3 kassi, keda andmebaasist võtame -->
         <h2 class="index_title">Meie armsad kassid</h2>
         <div class="kassi_info_div">
             <?php
@@ -159,6 +166,7 @@ require("abifunktsioonid.php");
         </div>
     </div>
 <?php endif; ?>
+<!-- Lisame lehe lõpu jaluse -->
 <?php include 'footer.php'; ?>
 </body>
 </html>

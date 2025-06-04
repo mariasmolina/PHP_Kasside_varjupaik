@@ -10,6 +10,7 @@ require("abifunktsioonid.php");
     <title>Kasside Varjupaik - Kontaktid</title>
     <link rel="icon" href="img/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Montserrat font Google'ist -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,7 +18,7 @@ require("abifunktsioonid.php");
 <header class="main-header">
     <h1>Kontaktid</h1>
 </header>
-
+<!-- Lisame navigeerimismenüü -->
 <?php include 'nav.php'; ?>
 
 <div class="container">
@@ -28,7 +29,7 @@ require("abifunktsioonid.php");
         <div class="kontakt_div">
             <h2>Võta meiega ühendust</h2>
             <p>Kui soovid meie kasside kohta rohkem teada või tahad tulla külla, võta meiega ühendust!</p>
-            <!--https://heroicons.com/ SVG ikoonid-->
+            <!--Kontaktandmed SVG ikoonidega - https://heroicons.com/ -->
             <div class="contact_info">
                 <p>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke-width="2" stroke="#2f7f4f" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
@@ -73,14 +74,14 @@ require("abifunktsioonid.php");
         </div>
     </div>
 
-    <!-- Kaart -->
+    <!-- Kaart Google Maps'ist -->
     <div class="kontakt_kaart">
         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1207.219952512161!2d24.704162944739313!3d59.41149291864945!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x469294f1bd8cb15b%3A0xc372ff05bb27e9f4!2sTallinna%20T%C3%B6%C3%B6stushariduskeskus!5e0!3m2!1set!2see!4v1748718187679!5m2!1set!2see"
                 width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 
 </div>
-
+<!-- Lisame lehe lõpu jaluse -->
 <?php include 'footer.php'; ?>
 </body>
 </html>

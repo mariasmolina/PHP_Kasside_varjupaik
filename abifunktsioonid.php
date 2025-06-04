@@ -68,7 +68,7 @@ function kysiAndmed($sorttulp="kuupaev", $otsiloom = '', $otsikuupaev = ''){
     return $hoidla;
 }
 
-
+// Loome rippmenüü valikute jaoks (nt looma valik või toidu valik)
 function looRippMenyy($sqllause, $valikunimi, $valitudid=""){
     global $yhendus;
     $kask=$yhendus->prepare($sqllause);
@@ -155,6 +155,8 @@ VALUES (?, ?)");
     $kask->execute();
 }
 
+
+
 // Lisame uue toitmise ajalugu andmed andmebaasi
 function lisaToitmine($kuupaev, $kogus, $toit_id, $loom_id, $tootaja_id){
     global $yhendus;
@@ -168,6 +170,7 @@ VALUES (?, ?, ?, ?, ?)");
     $kask->execute();
 }
 
+// Kustutame toitmise ajalugu andmed andmebaasist
 function kustutaLoomatoitmine($id){
     global $yhendus;
     $kask=$yhendus->prepare("DELETE FROM toitmisajalugu WHERE id=?");
@@ -207,7 +210,7 @@ function kustutaLoom($id){
     $kask->execute();
 }
 
-// Tabel 'loom'
+// Tabel 'toit'
 function kysiToiduAndmed($sorttulp="tootja", $otsityyp = '', $otsitootja = ''){
     global $yhendus;
     $lubatudtulbad=array("toidu_nimetus", "tootja", "tyyp", "sailivus_paevad");
@@ -249,6 +252,7 @@ function kysiToiduAndmed($sorttulp="tootja", $otsityyp = '', $otsitootja = ''){
     return $hoidla;
 }
 
+// Lisame uue toidu andmebaasi
 function lisaToit($toidu_nimetus, $tootja, $tyyp, $sailivus_paevad){
     global $yhendus;
 
@@ -259,6 +263,7 @@ VALUES (?, ?, ?, ?)");
     $kask->execute();
 }
 
+// Kustutame andmed tabelist 'toit'
 function kustutaToit($id){
     global $yhendus;
     $kask=$yhendus->prepare("DELETE FROM toit WHERE id=?");
@@ -266,20 +271,21 @@ function kustutaToit($id){
     $kask->execute();
 }
 
-// Toit tabeli muutmine
-    function muudaToit($id, $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad){
-    global $yhendus;
+// 'Toit' tabeli muutmine
+function muudaToit($id, $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad){
+global $yhendus;
 
-    $kask = $yhendus->prepare("UPDATE toit SET toidu_nimetus=?, tootja=?, tyyp=?, sailivus_paevad=? WHERE id=?");
-    $kask->bind_param("sssii", $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad, $id);
-    $kask->execute();
+$kask = $yhendus->prepare("UPDATE toit SET toidu_nimetus=?, tootja=?, tyyp=?, sailivus_paevad=? WHERE id=?");
+$kask->bind_param("sssii", $toidu_nimetus, $tootja, $tyyp, $sailivus_paevad, $id);
+$kask->execute();
 }
 
 
-function touguKontroll($toug_nimetus, $allergiasobralik){
+// Kontrollime, kas tõug on juba olemas
+function touguKontroll($toug_nimetus){
     global $yhendus;
-    $kask=$yhendus->prepare("SELECT * FROM toug WHERE toug_nimetus = ? AND allergiasobralik = ?");
-    $kask->bind_param("si", $toug_nimetus, $allergiasobralik);
+    $kask=$yhendus->prepare("SELECT * FROM toug WHERE toug_nimetus = ?");
+    $kask->bind_param("s", $toug_nimetus);
     if($kask->execute()){
         $kask->store_result();
         $rida=$kask->num_rows;
@@ -287,6 +293,7 @@ function touguKontroll($toug_nimetus, $allergiasobralik){
     }
 }
 
+// Kontrollime, kas sama toit on juba olemas (nimi ja tüüp peavad kattuma)
 function toitOlemas($nimetus, $tyyp) {
     global $yhendus;
     $kask = $yhendus->prepare("SELECT id FROM toit WHERE toidu_nimetus = ? AND tyyp = ?");
@@ -297,7 +304,9 @@ function toitOlemas($nimetus, $tyyp) {
     return $rida;
 }
 
-// Registreerimis vorm - funktisoonid
+// --- Registreerimis vorm - funktisoonid ---
+
+// Kontrollime, kas mõni väli jäi tühjaks
 function emptyInputSignup($login, $pass){
     global $result;
     if(empty($login) || empty($pass)){
@@ -309,6 +318,7 @@ function emptyInputSignup($login, $pass){
     return $result;
 }
 
+// Kontrollime, kas kasutajanimi sisaldab ainult tähti ja numbreid
 function invalidUid($login){
     global $result;
     if(!preg_match("/^[a-zA-Z0-9]*$/", $login)){
@@ -320,6 +330,7 @@ function invalidUid($login){
     return $result;
 }
 
+// Kontrollime, kas paroolid kattuvad
 function pwdMatch($pass, $passKord){
     global $result;
     if($pass != $passKord){
@@ -331,6 +342,7 @@ function pwdMatch($pass, $passKord){
     return $result;
 }
 
+// Kontrollime, kas kasutajanimi on juba olemas
 function uidExists($yhendus, $login){
     $sql = "SELECT * FROM ab_kasutajad WHERE login = ?";
     $stmt = mysqli_stmt_init($yhendus);
@@ -355,6 +367,7 @@ function uidExists($yhendus, $login){
     mysqli_stmt_close($stmt);
 }
 
+// Lisame uue kasutaja andmebaasi
 function createUser($yhendus, $kasutaja_nimi, $login, $pass){
     $sql = "INSERT INTO ab_kasutajad (kasutaja_nimi, login, parool) VALUES (?, ?, ?)";
     $stmt = mysqli_stmt_init($yhendus);

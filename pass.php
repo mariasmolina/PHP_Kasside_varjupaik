@@ -1,5 +1,5 @@
 <?php
-$parool = 'kasutaja123';
+$parool = 'parool';
 $sool = 'cool';
 $krypt = crypt($parool, $sool);
 echo $krypt;

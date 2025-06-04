@@ -19,13 +19,16 @@ global $yhendus;
 <body>
 <header>
     <h1>Vabad südamesõbrad</h1>
+    <!-- Kui admin on sisse logitud, näitame märki -->
     <?php if (isAdmin()): ?>
         <span class="admin-badge">Admin</span>
     <?php endif; ?>
 </header>
+    <!-- Lisame navigeerimismenüü -->
     <?php include 'nav.php'; ?>
     <div class="valik-sisu">
         <?php
+        // Pärime andmebaasist kõik kassid, kes on avalikud
         $kask = $yhendus->prepare("
 SELECT pilt, looma_nimi, synniaeg, sugu, toug_nimetus
 FROM loom 
@@ -37,6 +40,7 @@ WHERE avalik=1
 
         echo "<div class='galerii'>";
         while ($kask->fetch()) {
+            // Näitame pildi ja andmed looma kohta
             echo "<div class='galerii_kaart'>";
             echo "<img src='" . htmlspecialchars($pilt) . "' alt='Foto' class='galerii_img'>";
             echo "<h3>" . htmlspecialchars($nimi) . "</h3>";
@@ -48,6 +52,7 @@ WHERE avalik=1
         echo "</div>";
         ?>
     </div>
+<!-- Lisame lehe lõpu jaluse -->
 <?php include 'footer.php'; ?>
 </body>
 </html>

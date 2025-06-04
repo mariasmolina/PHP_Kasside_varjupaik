@@ -10,6 +10,8 @@ if (isset($_SESSION['kasutaja']) && $_SESSION['kasutaja'] === 'admin') {
     $_SESSION['admin'] = false;
 }
 require("abifunktsioonid.php");
+
+// Sorteerimise ja otsingu muutujad
 $sorttulp="synniaeg";
 $otsitoug = "";
 $otsisugu = "";
@@ -29,13 +31,13 @@ if(isSet($_REQUEST["peida_id"])) {
     $paring->execute();
     header("Location:$_SERVER[PHP_SELF]");
 }
-// ei luba !empty ja trim - tühiku lisamine
+// Kui vajutati "Lisa tõug", kontrollime kas nimi ei ole tühi ja allergiasobralik olemas
 if(isSet($_REQUEST["tougulisamine"]) && trim($_REQUEST["uusTouguNimetus"]) !== ""
     && isset($_REQUEST["uusAllergiaStaatus"])
 ) {
     $toug_nimetus=trim($_REQUEST["uusTouguNimetus"]);
     $allergiasobralik=intval($_REQUEST["uusAllergiaStaatus"]);
-    if(touguKontroll($toug_nimetus, $allergiasobralik)==0){
+    if(touguKontroll($toug_nimetus)==0){
         lisaToug($toug_nimetus, $allergiasobralik);
         header("Location: loomadAdmin.php?teade=toug_lisatud");
         exit();
@@ -45,7 +47,7 @@ if(isSet($_REQUEST["tougulisamine"]) && trim($_REQUEST["uusTouguNimetus"]) !== "
         exit();
     }
 }
-
+// Kui kõik vajalikud väljad on täidetud, lisame uue looma
 if(isSet($_REQUEST["loomalisamine"]) &&
     !empty(trim($_REQUEST["looma_nimi"])) &&
     !empty(trim($_REQUEST["kaal"])) &&
@@ -53,6 +55,14 @@ if(isSet($_REQUEST["loomalisamine"]) &&
     !empty(trim($_REQUEST["sugu"])) &&
     !empty($_REQUEST["toug_id"])&&
     !empty(trim($_REQUEST["pilt"]))) {
+
+    // Kontroll: kui sisestatud sünniaeg on tulevikus
+    $synd=$_REQUEST["synniaeg"];
+    if (strtotime($synd)>time()) {
+        header("Location: loomadAdmin.php?teade=vale_kuupaev");
+        exit();
+    }
+
     lisaLoom($_REQUEST["looma_nimi"], $_REQUEST["kaal"], $_REQUEST["synniaeg"], $_REQUEST["sugu"], $_REQUEST["toug_id"], $_REQUEST["pilt"]);
     header("Location: loomadAdmin.php?teade=lisatud");
     exit();
@@ -64,18 +74,27 @@ if(isSet($_REQUEST["sort"])){$sorttulp=$_REQUEST["sort"];
 if (isset($_REQUEST["otsitoug"])) {
     $otsitoug=$_REQUEST["otsitoug"];
 }
-// kuupäeva otsing
+// otsing
 if (isset($_REQUEST["otsisugu"])) {
     $otsisugu=$_REQUEST["otsisugu"];
 }
+// Kui on admin ja vajutatakse "Kustuta"
 if (isset($_REQUEST["kustutusid"]) && isAdmin()) {
     kustutaLoom($_REQUEST["kustutusid"]);
     header("Location: loomadAdmin.php?teade=kustutatud");
 }
+// Kui admin vajutab "Muuda"
 if (isset($_REQUEST["muutmine"]) && isAdmin()) {
+    // Kontrollime, et muudetud sünniaeg ei oleks tulevikus
+    $synd = $_REQUEST["synniaeg"];
+    if (strtotime($synd) > time()) {
+        header("Location: loomadAdmin.php?teade=vale_kuupaev");
+        exit();
+    }
     muudaLoom($_REQUEST["muudetudid"], $_REQUEST["looma_nimi"], $_REQUEST["kaal"], $_REQUEST["synniaeg"], $_REQUEST["sugu"], $_REQUEST["toug_id"]);
     header("Location: loomadAdmin.php?teade=muudetud");
 }
+// Pärime loomade nimekirja (sorteeritud ja otsinguga)
 $loomad=kysiLoomaAndmed($sorttulp, $otsitoug, $otsisugu);
 ?>
 <!DOCTYPE html>
@@ -87,6 +106,7 @@ $loomad=kysiLoomaAndmed($sorttulp, $otsitoug, $otsisugu);
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script>
+        <!-- JavaScript funktsioon otsingu tühjendamiseks -->
         function tyhjendaOtsing() {
             document.getElementById('otsitoug').value = '';
             document.getElementById('otsisugu').value = '';
@@ -96,39 +116,43 @@ $loomad=kysiLoomaAndmed($sorttulp, $otsitoug, $otsisugu);
 </head>
 <body>
 <?php
+// Kontrollime, kas kasutaja on sisse logitud
 if (isset($_SESSION['kasutaja'])) {
     ?>
     <header>
         <h1>Kasside loetelu</h1>
+        <!-- Kui on admin, siis näitame admin-märki -->
         <?php if (isAdmin()): ?>
             <span class="admin-badge">Admin</span>
         <?php endif; ?>
+        <!-- Kui on töötaja, siis töötaja-märk -->
         <?php if (isTootaja()): ?>
             <span class="tootaja-badge">Töötaja</span>
         <?php endif; ?>
     </header>
+    <!-- Lisame navigeerimismenüü -->
     <?php include 'nav.php'; ?>
     <div class="tabeli_container">
         <?php if (isAdmin()): ?>
             <aside class="aside_login">
-                <!-- lisamine -->
-                <form action="loomadAdmin.php" id="lisamisvorm">
+                <!-- Vorm uue looma lisamiseks -->
+                <form action="loomadAdmin.php" id="lisamisvorm" method="get">
                     <h2>Looma lisamine</h2>
                     <br>
                     <label for="looma_nimi">Looma nimi:</label>
-                    <input type="text" name="looma_nimi" id="looma_nimi">
+                    <input type="text" name="looma_nimi" id="looma_nimi" required> <!-- "required" muudab selle välja kohustuslikuks -->
                     <br>
                     <label for="kaal">Kaal:</label>
-                    <input type="number" name="kaal" id="kaal" min="0" max="30" step="0.01" placeholder="grammid">
+                    <input type="number" name="kaal" id="kaal" min="0" max="30" step="0.01" placeholder="kilogrammid" required>
                     <br>
                     <label for="">Sünniaeg:</label>
-                    <input type="date" name="synniaeg" id="synniaeg">
+                    <input type="date" name="synniaeg" id="synniaeg" required>
                     <br>
                     <fieldset class="sugu-valik">
                         <legend><strong>Sugu:</strong></legend>
-                        <input type="radio" name="sugu" id="emane" value="Emane">
+                        <input type="radio" name="sugu" id="emane" value="Emane" required>
                         <label for="emane">Emane</label>
-                        <input type="radio" id="isane" name="sugu" value="Isane">
+                        <input type="radio" id="isane" name="sugu" value="Isane" required>
                         <label for="isane">Isane</label>
                     </fieldset>
                     <br>
@@ -141,7 +165,7 @@ if (isset($_SESSION['kasutaja'])) {
                     <label for="pilt">Pildi link:</label>
                     <!-- Kui kasutaja sisestab pildi lingi, uuendatakse eelvaade all JS abil -->
                     <input type="url" name="pilt" id="pilt" placeholder="https://naidis.ee/pilt.jpg"
-                           oninput="document.getElementById('preview').src = this.value;">
+                           oninput="document.getElementById('preview').src = this.value;" required>
                     <br>
                     <img id="preview" src="">
                     <br><br>
@@ -166,18 +190,27 @@ if (isset($_SESSION['kasutaja'])) {
         <?php if (isAdmin()): ?>
         <main class="table">
             <?php else: ?>
+            <!-- Kitsam vaade tavakasutajale -->
             <main class="table" style="max-width: 900px; margin: 0 auto;">
                 <?php endif; ?>
                 <!-- otsing -->
                 <form action="loomadAdmin.php" id="otsinguvorm">
                     <div>
+                        <!-- Tõu valik -->
                         <label for="otsitoug">Tõug:</label>
-                        <?php
-                        echo looRippMenyy("SELECT id, toug_nimetus FROM toug",
-                            "otsitoug");
-                        ?>
+                        <select name="otsitoug" id="otsitoug">
+                            <option value="">vali...</option>
+                            <?php
+                            $kask = $yhendus->prepare("SELECT id, toug_nimetus FROM toug");
+                            $kask->bind_result($id, $sisu);
+                            $kask->execute();
+                            while ($kask->fetch()) {
+                                echo "<option value='$id'>$sisu</option>";
+                            }
+                            ?>
+                        </select>
                     </div>
-
+                    <!-- Sugu valik -->
                     <div>
                         <label for="otsisugu">Sugu:</label>
                         <select name="otsisugu" id="otsisugu">
@@ -196,6 +229,7 @@ if (isset($_SESSION['kasutaja'])) {
                     <br>
                     <table>
                         <tr>
+                            <!-- Sortimislingid tulpadel -->
                             <th><a href="loomadAdmin.php?sort=looma_nimi">Looma nimi</a></th>
                             <th><a href="loomadAdmin.php?sort=sugu">Sugu</a></th>
                             <th><a href="loomadAdmin.php?sort=synniaeg">Sünniaeg</a></th>
@@ -209,6 +243,7 @@ if (isset($_SESSION['kasutaja'])) {
                         <?php foreach($loomad as $loom): ?>
                             <?php if(isSet($_REQUEST["muutmisid"]) && intval($_REQUEST["muutmisid"])==$loom->id): ?>
                                 <tr>
+                                    <!-- Vorm muutmiseks -->
                                     <td><input type="text" name="looma_nimi" value="<?=$loom->looma_nimi ?>" /></td>
                                     <td>
                                         <select name="sugu" id="sugu">
@@ -224,7 +259,7 @@ if (isset($_SESSION['kasutaja'])) {
                                         </select>
                                     </td>
                                     <td><input type="date" name="synniaeg" value="<?=$loom->synniaeg ?>" /></td>
-                                    <td><input type="number" name="kaal" step="0.01" value="<?=$loom->kaal ?>" /></td>
+                                    <td><input type="number" name="kaal" min="0" max="30" step="0.01" placeholder="kilogrammid" value="<?=$loom->kaal ?>" /></td>
                                     <td>
                                         <?php
                                         echo looRippMenyy("SELECT id, toug_nimetus FROM toug ", "toug_id", $loom->toug_id);
@@ -254,6 +289,7 @@ if (isset($_SESSION['kasutaja'])) {
                                                onclick="return confirm('Kas ikka soovid kustutada?')">Kustuta</a>
                                             <a href="loomadAdmin.php?muutmisid=<?=$loom->id ?>" class="muuda_nupp">Muuda</a>
                                         </td>
+                                        <!-- Näita / Peida nupp ja ikoon -->
                                         <?php
                                             $tekst="Näita";
                                             $avaparametr="kuva_id";
@@ -282,11 +318,13 @@ if (isset($_SESSION['kasutaja'])) {
                 </form>
             </main>
     </div>
+    <!-- Lisame lehe lõpu jaluse -->
     <?php include 'footer.php'; ?>
     <?php
 }
 ?>
 <?php if (isset($_GET["teade"])): ?>
+    <!-- Teadete kuvamine -->
     <script>
         window.onload = function () {
             <?php if ($_GET["teade"] === "muudetud"): ?>
@@ -299,6 +337,8 @@ if (isset($_SESSION['kasutaja'])) {
             alert("Tõug on juba olemas, lisa teistsugune!");
             <?php elseif ($_GET["teade"] === "toug_lisatud"): ?>
             alert("Uus tõug on lisatud edukalt!");
+            <?php elseif ($_GET["teade"] === "vale_kuupaev"): ?>
+            alert("Viga! sünniaeg ei saa olla tulevikus!");
             <?php endif; ?>
         };
     </script>
