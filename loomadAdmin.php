@@ -140,19 +140,19 @@ if (isset($_SESSION['kasutaja'])) {
                     <h2>Looma lisamine</h2>
                     <br>
                     <label for="looma_nimi">Looma nimi:</label>
-                    <input type="text" name="looma_nimi" id="looma_nimi" required> <!-- "required" muudab selle välja kohustuslikuks -->
+                    <input type="text" name="looma_nimi" id="looma_nimi">
                     <br>
                     <label for="kaal">Kaal:</label>
-                    <input type="number" name="kaal" id="kaal" min="0" max="30" step="0.01" placeholder="kilogrammid" required>
+                    <input type="number" name="kaal" id="kaal" min="0" max="30" step="0.01" placeholder="kilogrammid">
                     <br>
                     <label for="">Sünniaeg:</label>
-                    <input type="date" name="synniaeg" id="synniaeg" required>
+                    <input type="date" name="synniaeg" id="synniaeg">
                     <br>
                     <fieldset class="sugu-valik">
                         <legend><strong>Sugu:</strong></legend>
-                        <input type="radio" name="sugu" id="emane" value="Emane" required>
+                        <input type="radio" name="sugu" id="emane" value="Emane">
                         <label for="emane">Emane</label>
-                        <input type="radio" id="isane" name="sugu" value="Isane" required>
+                        <input type="radio" id="isane" name="sugu" value="Isane">
                         <label for="isane">Isane</label>
                     </fieldset>
                     <br>
@@ -165,7 +165,7 @@ if (isset($_SESSION['kasutaja'])) {
                     <label for="pilt">Pildi link:</label>
                     <!-- Kui kasutaja sisestab pildi lingi, uuendatakse eelvaade all JS abil -->
                     <input type="url" name="pilt" id="pilt" placeholder="https://naidis.ee/pilt.jpg"
-                           oninput="document.getElementById('preview').src = this.value;" required>
+                           oninput="document.getElementById('preview').src = this.value;">
                     <br>
                     <img id="preview" src="">
                     <br><br>
